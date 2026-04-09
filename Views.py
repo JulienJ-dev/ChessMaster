@@ -85,8 +85,8 @@ class PlayerView(BaseView):
     def display_research_match(self, matchs):
         for i, match in enumerate(matchs, start = 1):
             print(f"{i}. {match}")
-            print("Choisissez le joueur recherché")
-            return self.get_input()
+        print("Choisissez le joueur recherché")
+        return self.get_input()
 
     def display_interface_player_data(self, data_needed):
         print(data_needed)

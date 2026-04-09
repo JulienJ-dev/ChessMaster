@@ -116,14 +116,15 @@ class PlayerController:
             view.show_message(no_match_message)
             return
 
-        if len(possible_match) == 1:
+        elif len(possible_match) == 1:
             selected_player = possible_match[0]
+
         else:
             while True:
                 try:
                     match = view.display_research_match(possible_match)
-                    if match in range(1, len(possible_match) + 1):
-                        selected_player = possible_match[match - 1]
+                    if int(match) in range(1, len(possible_match) + 1):
+                        selected_player = possible_match[int(match) - 1]
                         break
                     else:
                         view.show_message("Entrez le chiffre correspondant à votre choix")
