@@ -104,4 +104,19 @@ class PlayerView(BaseView):
 
 
 class TournamentView(BaseView) :
-    pass
+    
+    def display_menu(self):
+        options = ["Créer un tournoi", "Gérer un tournoi à venir ou en cours", "Voir tous les tournois", "Consulter les résultats d'un tournoi", "Restaurer la base de données des tournois", "Retour au menu principal"]
+        possible_choices =[]
+        titre_menu = "Menu de gestion des tournois".upper()
+        print("\n" + titre_menu)
+        print("-" * len(titre_menu) + "\n")
+        for i, option in enumerate(options, start = 1):
+            print(f"{i}. {option}")
+            possible_choices.append(str(i))
+        
+        return possible_choices
+    
+    def display_tournament_creation_interface(self, data_needed):
+            print(data_needed)
+            return self.get_input()

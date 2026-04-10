@@ -3,7 +3,6 @@ import Models
 import Repositories
 import re
 from pathlib import Path
-import json
 
 
 class MainController:
@@ -16,6 +15,7 @@ class MainController:
         self.player_controller = PlayerController()
         self.tournament_controller = TournamentController()
         self.player_view = Views.PlayerView()
+        self.tournament_view = Views.TournamentView()
         self.player_repository = Repositories.PlayerRepository(self.filename_repo_players)
         self.tournament_repository = Repositories.TournamentRepository(self.filename_repo_tournament)
 
@@ -39,7 +39,7 @@ class MainController:
             case "1":
                 self.player_controller.run(self.player_view, self.player_repository)
             case "2":
-                pass
+                self.tournament_controller.run(self.tournament_view, self.tournament_repository)
             case "3":
                 exit()
     
@@ -47,7 +47,106 @@ class MainController:
 
 
 class TournamentController:
-    pass
+    
+    def __init__(self):
+        self.tournament_list = []
+
+    def run(self, view: Views.TournamentViewView, player_repo : Repositories.PlayerRepository):
+        while True:
+            possible_choices = view.display_menu()
+            choice = view.get_input()
+            action = self.handle_start_menu_tournament(possible_choices, choice, view, player_repo)
+            if action == "quit":
+                return
+            
+    def handle_start_menu_tournament(self, possible_choices, choice, view: Views.TournamentView, player_repo):
+        while True:
+            try:
+                self.check_choice(choice, possible_choices)
+            except ValueError as e:
+                print(e)
+                return
+            match choice:
+                case "1":
+                    data_needed = [ "Nom du tournoi",
+                        "Ville du tournoi",
+                        "Jour de démarrage",
+                        "Mois de démarrage",
+                        "Année de démarrage",
+                        "Jour de fin",
+                        "Mois de fin",
+                        "Année de fin",
+                        "Participants",
+                        "Description"]
+                    data_new_tournament = {}
+                    interface_title = "INTERFACE DE CREATION DE TOURNOI"
+                    view.show_message("\n" + interface_title)
+                    view.show_message("-" * len(interface_title) + "\n")
+                    for element in data_needed:
+                        while True:
+                            user_input = view.display_tournament_creation_interface(element)
+                            try:
+                                self.check_input_data_tournament(user_input, element)
+                                data_new_tournament[element] = user_input
+                                break
+                            except ValueError as e:
+                                print(e)
+                    
+                    return
+
+                case "2":
+                    pass
+                case "3":
+                    for element in self.tournament_list:
+                        view.show_message(element)
+                    return
+                case "4":
+                    pass
+                case "5": 
+                    pass
+                case "6":
+                    return "quit"
+                
+    def check_choice(self, input_user, choice_possibilities):
+        if input_user not in choice_possibilities:
+            raise ValueError(f"Vous devez choisir parmi les choix {','.join(choice_possibilities)}")
+    
+    def create_tournament(self, new_tournament_data):
+        try:
+            new_tournament = Models.Tournament(
+                new_tournament_data["Nom du tournoi"],
+                new_tournament_data["Ville du tournoi"],
+                new_tournament_data["Date de démarrage"],
+                new_tournament_data["Date de fin"],
+                new_tournament_data["Participants"],
+                new_tournament_data["Description"],
+            )
+            return new_tournament_data
+        except ValueError:
+            print("Erreur lors de la création du joueur, veuillez saisir à nouveau les données")
+    
+    def check_input_data_tournament(self, input, data):
+        if not isinstance(input, str) or not input.strip():
+            raise ValueError (f"Le champ {data} ne peut pas être vide")
+        match data:
+            case "Jour de démarrage":
+                if not re.fullmatch(r"[0-9]{2}", input):
+                    raise ValueError (f"{data} invalide, format attendu '00'")
+            case "Mois de démarrage":
+                if not re.fullmatch(r"[0-9]{2}", input):
+                    raise ValueError (f"{data} invalide, format attendu '00'")
+            case "Année de démarrage":
+                if not re.fullmatch(r"[0-9]{4}", input):
+                    raise ValueError (f"{data} invalide, format attendu '0000'")
+            case "Jour de fin":
+                if not re.fullmatch(r"[0-9]{2}", input):
+                    raise ValueError (f"{data} invalide, format attendu '00'")
+            case "Mois de fin":
+                if not re.fullmatch(r"[0-9]{2}", input):
+                    raise ValueError (f"{data} invalide, format attendu '00'")
+            case "Année de fin":
+                if not re.fullmatch(r"[0-9]{4}", input):
+                    raise ValueError (f"{data} invalide, format attendu '0000'")
 
 
 class PlayerController:

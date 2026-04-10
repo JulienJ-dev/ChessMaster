@@ -7,9 +7,9 @@ class Tournament:
                 location : str,
                 start_date : str,
                 end_date : str,
-                rounds : list,
                 registered_players : list,
-                description : str,
+                description : str = "",
+                rounds : list = [],
                 nb_rounds : int = 4):
         
         self._name = name
