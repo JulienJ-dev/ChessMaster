@@ -126,10 +126,19 @@ class Player:
         self._player_id = value
 
     def from_dict(self, json_data):
-        pass
+        for element in json_data:
+            player = Player(
+                element["first_name"],
+                element["last_name"],
+                element["birth_date"],
+                element["player_id"]
+            )
+        return player
 
-    def to_dict(self, data):
-        
-        pass
-    
-    
+    def to_dict(self):
+        return {
+            "first_name" : self.first_name,
+            "last_name" : self.last_name,
+            "birth_date" : self.birth_date,
+            "player_id" : self._player_id
+            }

@@ -1,13 +1,23 @@
 import Views
 import Models
+import Repositories
 import re
+from pathlib import Path
+import json
 
 
 class MainController:
 
+    BASE_DIR = Path(__file__).resolve().parent
+    filename_repo_players = BASE_DIR / "data" / "players.json"
+    filename_repo_tournament = BASE_DIR / "data" / "tournament.json"
+
     def __init__(self):
         self.player_controller = PlayerController()
+        self.tournament_controller = TournamentController()
         self.player_view = Views.PlayerView()
+        self.player_repository = Repositories.PlayerRepository(self.filename_repo_players)
+        self.tournament_repository = Repositories.TournamentRepository(self.filename_repo_tournament)
 
     def run(self):
         main_view = Views.MainView()
@@ -27,11 +37,13 @@ class MainController:
 
         match choice:
             case "1":
-                self.player_controller.run(self.player_view)
+                self.player_controller.run(self.player_view, self.player_repository)
             case "2":
                 pass
             case "3":
                 exit()
+    
+    
 
 
 class TournamentController:
@@ -45,29 +57,29 @@ class PlayerController:
     def __init__(self):
         self.player_list = []
 
-    def run(self, view: Views.PlayerView):
+    def run(self, view: Views.PlayerView, player_repo : Repositories.PlayerRepository):
         while True:
             possible_choices = view.display_menu()
             choice = view.get_input()
-            action = self.handle_start_menu_player(possible_choices, choice, view)
+            action = self.handle_start_menu_player(possible_choices, choice, view, player_repo)
             if action == "quit":
                 return
 
-    def handle_start_menu_player(self, possible_choices, choice, view: Views.PlayerView):
+    def handle_start_menu_player(self, possible_choices, choice, view: Views.PlayerView, player_repo):
         if self.check_choice(choice, possible_choices):
             match choice:
                 case "1":
-                    self.handle_add_player_menu(view)
+                    self.handle_add_player_menu(view, player_repo)
                 case "2":
-                    self.handle_modify_player_menu(view)
+                    self.handle_modify_player_menu(view, player_repo)
                 case "3":
                     view.display_player_list(self.player_list)
                 case "4":
-                    return
+                    self.handle_restoration_database_interface(view, player_repo)
                 case "5": 
                     return "quit"
 
-    def handle_add_player_menu(self, view: Views.PlayerView):
+    def handle_add_player_menu(self, view: Views.PlayerView, player_repo : Repositories.PlayerRepository):
         new_player_data = {}
         add_player_title = "AJOUTER UN JOUEUR"
         line_player_title = "-" * len(add_player_title)
@@ -105,7 +117,7 @@ class PlayerController:
         self.player_list.append(player)
         print(f"Le joueur {player} a été créé avec succès")
 
-    def handle_modify_player_menu(self, view: Views.PlayerView):
+    def handle_modify_player_menu(self, view: Views.PlayerView, player_repo : Repositories.PlayerRepository):
         options = ["Prénom", "Nom", "Date de naissance", "Identifiant national"]
         no_match_message = "Aucune correspondance trouvée"
         researched_player = view.display_player_modification_research()
@@ -197,7 +209,28 @@ class PlayerController:
                     return
                 else:
                     view.show_message("Veuillez entrer un choix valide (y/n)")
-            
+    
+    def handle_restoration_database_interface(self, view: Views.PlayerView, player_repo : Repositories.PlayerRepository):
+        while True:
+            possible_choices, choice = view.display_confirmation_restoration_database()
+            try :
+                self.check_choice(choice, possible_choices)
+            except ValueError as e:
+                print (e)
+            match choice:
+                case "y":
+                    if player_repo.load_all() == None:
+                        return
+                    else : 
+                        self.player_list = player_repo.load_all()
+                        view.show_message("La liste des joueurs a bien été restaurée")
+                        return
+                case "n":
+                    return
+
+
+                    
+
 
     def check_choice(self, input_user, choice_possibilities):
         if input_user in choice_possibilities:

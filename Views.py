@@ -80,7 +80,10 @@ class PlayerView(BaseView):
         print(f"Quelle information du joueur {player._first_name} {player._last_name} voulez vous modifier?")
         return self.get_input()
 
-
+    def display_confirmation_restoration_database(self):
+        possible_choices = ["y", "n"]
+        self.show_message("Etes vous sûr de vouloir restaurer la base de données depuis le fichier de restauration? y/n")
+        return possible_choices, self.get_input()
 
     def display_research_match(self, matchs):
         for i, match in enumerate(matchs, start = 1):

@@ -46,7 +46,15 @@ class PlayerRepository:
     def load_all(self):
         try:
             with open (self._file_path, "r", encoding="utf8") as f:
-                return (json.load(f))
+                database = Models.Player.from_dict(json.load(f))
+                return database
         
         except (FileNotFoundError, json.JSONDecodeError):
             print("Le fichier est introuvable ou illisible")
+
+    def save_player_modification(self, players_dict):
+        for player in players_dict:
+            database = player.todict()
+            
+        with open(self._file_path, "w", encoding="utf8") as f:
+            json.dump(database, f, indent= 4)
