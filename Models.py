@@ -1,5 +1,3 @@
-import re
-
 class Tournament:
 
     def __init__(self,
@@ -10,18 +8,31 @@ class Tournament:
                 registered_players : list,
                 description : str = "",
                 rounds : list = [],
-                nb_rounds : int = 4):
+                nb_rounds : int = 4,
+                finished : bool = False):
         
-        self._name = name
-        self._location = location
-        self._start_date = start_date
-        self._end_date = end_date
-        self._current_round = 0
-        self._rounds = rounds
-        self._registered_players = registered_players
-        self._description = description
-        self._nb_rounds = nb_rounds
-        pass
+        self.name = name
+        self.location = location
+        self.start_date = start_date
+        self.end_date = end_date
+        self.current_round = 0
+        self.rounds = rounds
+        self.registered_players = registered_players
+        self.description = description
+        self.nb_rounds = nb_rounds
+        self.finished = finished
+
+    def __str__(self):
+        return f"""
+        Nom : {self.name}
+        Ville : {self.location}
+        Date de démarrage : {self.start_date}
+        Date de fin : {self.end_date}
+        Participants : {self.registered_players}
+        Description : {self.description}
+        Nombre de rounds : {self.nb_rounds}
+        Rounds : {self.rounds}
+        """
 
 
 
@@ -75,8 +86,6 @@ class Match:
     
 
 class Player:
-
-    ID_PATTERN = r"[A-Z]{2}\d{5}"
     
     def __init__(self,
                  first_name : str,
@@ -91,7 +100,6 @@ class Player:
 
     def __str__(self):
         return f"ID : {self._player_id} - {self._first_name} {self._last_name} / Date de naissance : {self._birth_date}"
-    
     
     @property
     def first_name(self):

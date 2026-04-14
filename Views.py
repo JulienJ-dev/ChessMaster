@@ -5,118 +5,110 @@ import Models
 class BaseView(ABC):
 
     @abstractmethod
-    def display_menu(self):
+    def display_menu(self, options):
         pass
-
 
     def get_input(self, prompt = "> "):
         return input(prompt)
     
-
     def show_message(self, msg):
         print(msg)
 
+    def show_title(self, title):
+        print("\n" + "-" * len(title))
+        print(title)
+        print("-" * len(title) + "\n")
 
 class MainView(BaseView):
 
 
     def show_welcome(self):
         text = "Bienvenue sur ChessMaster, votre logiciel de gestion de vos tournois d'échecs".upper()
-        print("\n" + text)
-        print("-" * len(text))
+        self.show_message("\n" + text)
+        self.show_message("-" * len(text))
     
-    def display_menu(self):
-        possible_choices = []
-        options = ["Gérer les joueurs", "Gérer les tournois", "Quitter"]
+    def display_menu(self, options : dict):
         title = "MENU PRINCIPAL"
-        self.show_message("\n" + title)
-        self.show_message("-" * len(title) + "\n")
+        self.show_title(title)
         
-
-        for i,  option in enumerate(options, start = 1):
-            print (f"{i}. {option}")
-            possible_choices.append(str(i))
+        for key, value in options.items():
+            print (f"{key}. {value}")
         
-        return possible_choices
+        return
          
             
-
-
 class PlayerView(BaseView):
 
 
-    def display_menu(self):
-        options = ["Ajouter un joueur", "Modifier un joueur", "Voir la liste des joueurs", "Restaurer la base de données des joueurs", "Retour au menu principal"]
-        possible_choices =[]
-        titre_menu = "Menu de gestion des joueurs".upper()
-        print("\n" + titre_menu)
-        print("-" * len(titre_menu) + "\n")
-        for i, option in enumerate(options, start = 1):
-            print(f"{i}. {option}")
-            possible_choices.append(str(i))
-        
-        return possible_choices
+    def display_menu(self, options):
+        title = "MENU DE GESTION DES JOUEURS"
+        self.show_title(title)
+        for key, value in options.items():
+            self.show_message(f"{key}. {value}")
     
     def display_player_modification_research(self):
-        section_title = "Modification d'un joueur".upper()
-        print("\n" + section_title)
-        print("-" * len(section_title) + "\n")
-        print("Quel est le joueur à modifier?\n")
+        title = "MODIFICATION D'UN JOUEUR"
+        self.show_title(title)
+        self.show_message("Quel est le joueur à modifier?\n")
         return self.get_input()
     
     def display_player_list(self, player_list):
+        title = "LISTE DES JOUEURS"
+        self.show_title(title)
         if player_list:
             for element in player_list:
-                print(element)
+                self.show_message(element)
         else :
-            print("\nLA LISTE DE JOUEUR EST VIDE")
+            self.show_message("LA LISTE DE JOUEUR EST VIDE")
     
-
     def display_submenu_player_modification(self, options, player : Models.Player):
-        print(player)
-        print()
+        self.show_message(f"{player} + \n")
         for i, option in enumerate(options, start = 1):
-            print(f"{i}. {option}")
-        print(f"Quelle information du joueur {player._first_name} {player._last_name} voulez vous modifier?")
+            self.show_message(f"{i}. {option}")
+        self.show_message(f"Quelle information du joueur {player.first_name} {player.last_name} voulez vous modifier?")
         return self.get_input()
 
-    def display_confirmation_restoration_database(self):
-        possible_choices = ["y", "n"]
-        self.show_message("Etes vous sûr de vouloir restaurer la base de données depuis le fichier de restauration? y/n")
-        return possible_choices, self.get_input()
-
-    def display_research_match(self, matchs):
-        for i, match in enumerate(matchs, start = 1):
-            print(f"{i}. {match}")
-        print("Choisissez le joueur recherché")
+    def display_player_research_match(self, matches):
+        for i, match in enumerate(matches, start = 1):
+            self.show_message(f"{i}. {match}")
+        self.show_message("Choisissez le joueur recherché")
         return self.get_input()
 
     def display_interface_player_data(self, data_needed):
-        print(data_needed)
+        self.show_message(data_needed)
         return self.get_input()
-
-
-   
-
-    def show_edit_player_first_name(self,player : Models.Player):
-        print(f"Prénom actuel : {player._first_name}")
-
 
 
 class TournamentView(BaseView) :
     
-    def display_menu(self):
-        options = ["Créer un tournoi", "Gérer un tournoi à venir ou en cours", "Voir tous les tournois", "Consulter les résultats d'un tournoi", "Restaurer la base de données des tournois", "Retour au menu principal"]
-        possible_choices =[]
-        titre_menu = "Menu de gestion des tournois".upper()
-        print("\n" + titre_menu)
-        print("-" * len(titre_menu) + "\n")
-        for i, option in enumerate(options, start = 1):
-            print(f"{i}. {option}")
-            possible_choices.append(str(i))
-        
-        return possible_choices
+    def display_menu(self, options : dict):
+        title = "MENU DE GESTION DES TOURNOIS"
+        self.show_title(title)
+        for key,value in options.items():
+            self.show_message(f"{key}. {value}")
     
-    def display_tournament_creation_interface(self, data_needed):
-            print(data_needed)
+    def display_interface_tournament_data(self, data_needed):
+            self.show_message(data_needed)
             return self.get_input()
+    
+    def display_submenu_tournament_modification(self, options, tournament : Models.Tournament):
+        self.show_message(f"{tournament} + \n")
+        for i, option in enumerate(options, start = 1):
+            self.show_message(f"{i}. {option}")
+        self.show_message(f"Quelle information du tournoi '{tournament.name}' voulez vous modifier?")
+        return self.get_input()
+
+    def display_tournament_research(self):
+        self.show_message("Quel tournoi recherchez vous?")
+        return self.get_input()
+    
+    def display_tournament_research_matches(self, matches):
+        for i, match in enumerate(matches, start = 1):
+            self.show_message(f"{i}. {match}")
+        self.show_message("Choisissez le tournoi recherché")
+        return self.get_input()
+    
+    def show_tournament_list(self, tournament_list):
+        for element in tournament_list:
+            self.show_message(element)
+            self.show_message("\n" + "-" * 50 + "\n")
