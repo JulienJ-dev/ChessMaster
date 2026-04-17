@@ -5,8 +5,9 @@ class Tournament:
                 location : str,
                 start_date : str,
                 end_date : str,
-                registered_players : list,
                 description : str = "",
+                registered_players : list = [],
+                current_round = 0,
                 rounds : list = [],
                 nb_rounds : int = 4,
                 finished : bool = False):
@@ -15,7 +16,7 @@ class Tournament:
         self.location = location
         self.start_date = start_date
         self.end_date = end_date
-        self.current_round = 0
+        self.current_round = current_round
         self.rounds = rounds
         self.registered_players = registered_players
         self.description = description
@@ -23,19 +24,74 @@ class Tournament:
         self.finished = finished
 
     def __str__(self):
+
+        registered_players_str = "\n        ".join(f" - {p}" for p in self.registered_players)
+                                                    
         return f"""
         Nom : {self.name}
         Ville : {self.location}
         Date de démarrage : {self.start_date}
         Date de fin : {self.end_date}
-        Participants : {self.registered_players}
         Description : {self.description}
         Nombre de rounds : {self.nb_rounds}
         Rounds : {self.rounds}
+        Participants :
+        {registered_players_str}
         """
 
+    @staticmethod
+    def from_dict(json_data):
+        tournament_list = []
 
+        for element in json_data:
+            if element["registered_players"]:
+                for player in element["registered_players"]:
+                    player = Player(player["first_name"], player["last_name"], player["birth_date"], player["player_id"])
 
+            tournament = Tournament(
+                            element["name"],
+                            element["location"],
+                            element["start_date"],
+                            element["end_date"],
+                            element["description"],
+                            element["registered_players"],
+                            element["current_round"],
+                            element["rounds"],
+                            element["nb_rounds"],
+                            element["finished"]
+                            )
+            tournament_list.append(tournament)
+        return tournament_list
+
+    def to_dict(self):
+        tournament_data =  {
+            "name" : self.name,
+            "location" : self.location,
+            "start_date" : self.start_date,
+            "end_date" : self.end_date,
+            "current_round" : self.current_round,
+            "rounds" : self.rounds,
+            "registered_players" : "aucun",
+            "description" : self.description,
+            "nb_rounds" : self.nb_rounds,
+            "finished" : self.finished
+            }
+        
+        if self.registered_players:
+            tournament_data["registered_players"] = []
+
+            for player in self.registered_players:
+                player_data = {
+                        "first_name" : player.first_name,
+                        "last_name" : player.last_name,
+                        "birth_date" : player.birth_date,
+                        "player_id" : player.player_id
+                        }
+                tournament_data["registered_players"].append(player_data)
+
+    
+        return tournament_data
+    
 class Round:
 
     def __init__(self,
@@ -133,7 +189,10 @@ class Player:
     def player_id(self, value):
         self._player_id = value
 
-    def from_dict(self, json_data):
+    @staticmethod
+    def from_dict(json_data):
+        players_list = []
+        
         for element in json_data:
             player = Player(
                 element["first_name"],
@@ -141,12 +200,14 @@ class Player:
                 element["birth_date"],
                 element["player_id"]
             )
-        return player
+            players_list.append(player)
+
+        return players_list
 
     def to_dict(self):
         return {
             "first_name" : self.first_name,
             "last_name" : self.last_name,
             "birth_date" : self.birth_date,
-            "player_id" : self._player_id
+            "player_id" : self.player_id
             }

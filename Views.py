@@ -52,7 +52,7 @@ class PlayerView(BaseView):
         self.show_message("Quel est le joueur à modifier?\n")
         return self.get_input()
     
-    def display_player_list(self, player_list):
+    def show_player_list(self, player_list):
         title = "LISTE DES JOUEURS"
         self.show_title(title)
         if player_list:
@@ -61,10 +61,10 @@ class PlayerView(BaseView):
         else :
             self.show_message("LA LISTE DE JOUEUR EST VIDE")
     
-    def display_submenu_player_modification(self, options, player : Models.Player):
-        self.show_message(f"{player} + \n")
-        for i, option in enumerate(options, start = 1):
-            self.show_message(f"{i}. {option}")
+    def display_submenu_player_modification(self, options : dict, player : Models.Player):
+        self.show_message(f"\n{player}\n")
+        for key, value in options.items():
+            self.show_message(f"{key}. {value}")
         self.show_message(f"Quelle information du joueur {player.first_name} {player.last_name} voulez vous modifier?")
         return self.get_input()
 
@@ -92,12 +92,16 @@ class TournamentView(BaseView) :
             return self.get_input()
     
     def display_submenu_tournament_modification(self, options, tournament : Models.Tournament):
-        self.show_message(f"{tournament} + \n")
-        for i, option in enumerate(options, start = 1):
-            self.show_message(f"{i}. {option}")
+        self.show_message(f"{tournament}\n")
+        for key, value in options.items():
+            self.show_message(f"{key}. {value}")
         self.show_message(f"Quelle information du tournoi '{tournament.name}' voulez vous modifier?")
         return self.get_input()
 
+    def display_interface_in_progress_tournament(self, options):
+        title = "INTERFACE DE GESTION DES TOURNOIS EN COURS"
+        self.show_title(title)
+        
     def display_tournament_research(self):
         self.show_message("Quel tournoi recherchez vous?")
         return self.get_input()
@@ -109,6 +113,7 @@ class TournamentView(BaseView) :
         return self.get_input()
     
     def show_tournament_list(self, tournament_list):
-        for element in tournament_list:
-            self.show_message(element)
-            self.show_message("\n" + "-" * 50 + "\n")
+        if tournament_list:
+            for element in tournament_list:
+                self.show_message(element)
+                self.show_message("\n" + "-" * 50 + "\n")
