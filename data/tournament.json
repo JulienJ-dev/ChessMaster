@@ -1,0 +1,21 @@
+[
+    {
+        "name": "TEST",
+        "location": "TEST",
+        "start_date": "00/00/0000",
+        "end_date": "00/00/0000",
+        "current_round": 0,
+        "rounds": [],
+        "registered_players": [
+            {
+                "first_name": "TEST",
+                "last_name": "TEST",
+                "birth_date": "00/00/0000",
+                "player_id": "ET13564"
+            }
+        ],
+        "description": "TEST",
+        "nb_rounds": 4,
+        "finished": false
+    }
+]
