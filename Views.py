@@ -4,6 +4,7 @@ import Models
 
 class BaseView(ABC):
 
+
     @abstractmethod
     def display_menu(self, options):
         pass
@@ -66,7 +67,7 @@ class PlayerView(BaseView):
         for key, value in options.items():
             self.show_message(f"{key}. {value}")
         self.show_message(f"Quelle information du joueur {player.first_name} {player.last_name} voulez vous modifier?")
-        return self.get_input()
+        return
 
     def display_player_research_match(self, matches):
         for i, match in enumerate(matches, start = 1):
@@ -76,11 +77,12 @@ class PlayerView(BaseView):
 
     def display_interface_player_data(self, data_needed):
         self.show_message(data_needed)
-        return self.get_input()
+        return
 
 
 class TournamentView(BaseView) :
     
+
     def display_menu(self, options : dict):
         title = "MENU DE GESTION DES TOURNOIS"
         self.show_title(title)
@@ -89,19 +91,18 @@ class TournamentView(BaseView) :
     
     def display_interface_tournament_data(self, data_needed):
             self.show_message(data_needed)
-            return self.get_input()
     
     def display_submenu_tournament_modification(self, options, tournament : Models.Tournament):
         self.show_message(f"{tournament}\n")
         for key, value in options.items():
             self.show_message(f"{key}. {value}")
         self.show_message(f"Quelle information du tournoi '{tournament.name}' voulez vous modifier?")
-        return self.get_input()
+        return
 
-    def display_interface_in_progress_tournament(self, options):
+    def display_interface_in_progress_tournament(self):
         title = "INTERFACE DE GESTION DES TOURNOIS EN COURS"
         self.show_title(title)
-        
+
     def display_tournament_research(self):
         self.show_message("Quel tournoi recherchez vous?")
         return self.get_input()
@@ -117,3 +118,5 @@ class TournamentView(BaseView) :
             for element in tournament_list:
                 self.show_message(element)
                 self.show_message("\n" + "-" * 50 + "\n")
+        else :
+            self.show_message("\nIl n'y a aucun tournoi enregistré\n")

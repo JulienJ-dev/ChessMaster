@@ -1,3 +1,6 @@
+import uuid
+
+
 class Tournament:
 
     def __init__(self,
@@ -6,11 +9,12 @@ class Tournament:
                 start_date : str,
                 end_date : str,
                 description : str = "",
-                registered_players : list = [],
+                registered_players = None,
                 current_round = 0,
-                rounds : list = [],
+                rounds = None,
                 nb_rounds : int = 4,
-                finished : bool = False):
+                finished : bool = False,
+                uuid_value = None):
         
         self.name = name
         self.location = location
@@ -22,11 +26,9 @@ class Tournament:
         self.description = description
         self.nb_rounds = nb_rounds
         self.finished = finished
+        self.uuid_value = uuid_value or str(uuid.uuid4())
 
-    def __str__(self):
-
-        registered_players_str = "\n        ".join(f" - {p}" for p in self.registered_players)
-                                                    
+    def __str__(self):                                           
         return f"""
         Nom : {self.name}
         Ville : {self.location}
@@ -35,35 +37,33 @@ class Tournament:
         Description : {self.description}
         Nombre de rounds : {self.nb_rounds}
         Rounds : {self.rounds}
-        Participants :
-        {registered_players_str}
         """
 
     @staticmethod
-    def from_dict(json_data):
-        tournament_list = []
+    def from_dict(tournament_json_data):
 
-        for element in json_data:
-            if element["registered_players"]:
-                for player in element["registered_players"]:
-                    player = Player(player["first_name"], player["last_name"], player["birth_date"], player["player_id"])
+        registered_players = []
+        if tournament_json_data["registered_players"] is not None:
+            for player in tournament_json_data["registered_players"]:
+                player = Player(player["first_name"], player["last_name"], player["birth_date"], player["player_id"], player["uuid_value"])
+                registered_players.append(player)
 
-            tournament = Tournament(
-                            element["name"],
-                            element["location"],
-                            element["start_date"],
-                            element["end_date"],
-                            element["description"],
-                            element["registered_players"],
-                            element["current_round"],
-                            element["rounds"],
-                            element["nb_rounds"],
-                            element["finished"]
-                            )
-            tournament_list.append(tournament)
-        return tournament_list
+        return Tournament(
+                        tournament_json_data["name"],
+                        tournament_json_data["location"],
+                        tournament_json_data["start_date"],
+                        tournament_json_data["end_date"],
+                        tournament_json_data["description"],
+                        registered_players if registered_players else None,
+                        tournament_json_data["current_round"],
+                        tournament_json_data["rounds"],
+                        tournament_json_data["nb_rounds"],
+                        tournament_json_data["finished"],
+                        tournament_json_data["uuid_value"]
+        )
 
     def to_dict(self):
+        
         tournament_data =  {
             "name" : self.name,
             "location" : self.location,
@@ -71,25 +71,27 @@ class Tournament:
             "end_date" : self.end_date,
             "current_round" : self.current_round,
             "rounds" : self.rounds,
-            "registered_players" : "aucun",
+            "registered_players" : self.registered_players,
             "description" : self.description,
             "nb_rounds" : self.nb_rounds,
-            "finished" : self.finished
+            "finished" : self.finished,
+            "uuid_value" : self.uuid_value
             }
         
         if self.registered_players:
             tournament_data["registered_players"] = []
+
 
             for player in self.registered_players:
                 player_data = {
                         "first_name" : player.first_name,
                         "last_name" : player.last_name,
                         "birth_date" : player.birth_date,
-                        "player_id" : player.player_id
+                        "player_id" : player.player_id,
+                        "uuid_value" : player.uuid_value
                         }
                 tournament_data["registered_players"].append(player_data)
 
-    
         return tournament_data
     
 class Round:
@@ -138,24 +140,23 @@ class Match:
             ID : {self._player1.player_id} {self._player1._first_name} {self._player1.last_name} : {self._score_player2}
             """
         
-    
-    
-
 class Player:
     
     def __init__(self,
                  first_name : str,
                  last_name : str,
                  birth_date : str,
-                 player_id : str):
+                 player_id : str,
+                 uuid_value = None):
 
         self.first_name = first_name
         self.last_name = last_name
         self.birth_date = birth_date
         self.player_id = player_id
+        self.uuid_value = uuid_value or str(uuid.uuid4())
 
     def __str__(self):
-        return f"ID : {self._player_id} - {self._first_name} {self._last_name} / Date de naissance : {self._birth_date}"
+        return f"ID : {self.player_id} - {self.first_name} {self.last_name} / Date de naissance : {self.birth_date}"
     
     @property
     def first_name(self):
@@ -198,7 +199,8 @@ class Player:
                 element["first_name"],
                 element["last_name"],
                 element["birth_date"],
-                element["player_id"]
+                element["player_id"],
+                element["uuid_value"]
             )
             players_list.append(player)
 
@@ -209,5 +211,6 @@ class Player:
             "first_name" : self.first_name,
             "last_name" : self.last_name,
             "birth_date" : self.birth_date,
-            "player_id" : self.player_id
+            "player_id" : self.player_id,
+            "uuid_value" : self.uuid_value
             }
