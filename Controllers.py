@@ -102,6 +102,11 @@ class MainController:
         if input_user not in choice:
             raise ValueError(f"Vous devez choisir parmi les choix {choice[0]} ou {choice[1]}")
     
+    @staticmethod
+    def format_date(day, month, year):
+        formatted_date = (day + "/" + month + "/" + year)
+        return formatted_date
+    
 class TournamentController():
     
     def __init__(self, tournament_view : Views.TournamentView, player_repo : Repositories.PlayerRepository, tournament_repo : Repositories.TournamentRepository):
@@ -111,6 +116,8 @@ class TournamentController():
 
     def run(self):
 
+        title = "MENU DE GESTION DES TOURNOIS"
+
         options = { "1" : "Créer un tournoi",
                     "2" : "Modifier un tournoi à venir",
                     "3" : "Gérer un tournoi en cours",
@@ -118,7 +125,10 @@ class TournamentController():
                     "5" : "Consulter les résultats d'un tournoi",
                     "6" : "Restaurer la base de données des tournois",
                     "7" : "Retour au menu principal"}
+
         while True:
+                  
+            self.tournament_view.show_title(title)
             self.tournament_view.display_menu(options)
             user_input = self.tournament_view.get_input()
             try:
@@ -185,10 +195,10 @@ class TournamentController():
                     break
                 except ValueError as e:
                     self.tournament_view.show_message(e)
-        formatted_start_date = self.format_date_tournament(new_tournament_data["Jour de démarrage"],
+        formatted_start_date = MainController.format_date(new_tournament_data["Jour de démarrage"],
                                                            new_tournament_data["Mois de démarrage"],
                                                            new_tournament_data["Année de démarrage"])
-        formatted_end_date = self.format_date_tournament(new_tournament_data["Jour de fin"],
+        formatted_end_date = MainController.format_date(new_tournament_data["Jour de fin"],
                                                          new_tournament_data["Mois de fin"],
                                                          new_tournament_data["Année de fin"])
 
@@ -208,64 +218,44 @@ class TournamentController():
 
         while True:
             self.tournament_view.show_message("Voulez vous ajouter des participants à ce tournoi ? y/n")
-            input_user = self.tournament_view.get_input().lower()
+            user_input = self.tournament_view.get_input().lower()
             try:
-                MainController.check_yes_no_choice(input_user)
+                MainController.check_yes_no_choice(user_input)
             except ValueError as e:
                 self.tournament_view.show_message(e)
                 continue
 
-            if input_user == "y":
-                add_player_method_options = {   "1" : "Sélectionner les participants à partir de la liste des joueurs",
-                                                "2" : "Rechercher manuellement"}
-                while True:
-                    for key, value in add_player_method_options.items():
-                        self.tournament_view.show_message(f"{key} . {value}")
-                    
-                    user_input = self.tournament_view.get_input()
-                    try:
-                        MainController.check_choice(user_input, list(add_player_method_options.keys()))
-                        break
-                    except ValueError as e:
-                        self.tournament_view.show_message(e)
-                        continue
+            if user_input == "y":
+               
+                registrable_players = {}
+                selected_players = []
                 
-                choice = add_player_method_options[user_input]
-
-                match choice:
-
-                    case "Sélectionner les participants à partir de la liste des joueurs":
-                        registrable_players = {}
-                        selected_players = []
-                        
-                        for i, player in enumerate (sorted(self.player_repository.players, key = lambda p : p.first_name), start = 1):
-                            registrable_players[str(i)] = player
-                            self.tournament_view.show_message(f"{i} : {player}")
-                        self.tournament_view.show_message("Indiquez les chiffres de chaque joueur, séparés d'une virgule")
-                        user_input = self.tournament_view.get_input()
-                        user_input = user_input.split(",")
-                        try:
-                            for element in user_input:
-                                if element not in list(registrable_players.keys()):
-                                    raise ValueError("Au moins une saisie ne correspond pas aux joueurs existants, veuillez recommencer")
-                                    
-                        except ValueError as e:
-                            self.tournament_view.show_message(e)
-                            continue
+                for i, player in enumerate (sorted(self.player_repository.players, key = lambda p : p.first_name), start = 1):
+                    registrable_players[str(i)] = player
+                    self.tournament_view.show_message(f"{i} : {player}")
+                self.tournament_view.show_message("Indiquez les chiffres de chaque joueur, séparés d'une virgule")
+                user_input = self.tournament_view.get_input()
+                user_input = user_input.split(",")
+                try:
+                    for element in user_input:
+                        if element not in list(registrable_players.keys()):
+                            raise ValueError("Au moins une saisie ne correspond pas aux joueurs existants, veuillez recommencer")
                             
-                        for element in user_input :
-                            selected_players.append(registrable_players[element])
-                            
+                except ValueError as e:
+                    self.tournament_view.show_message(e)
+                    continue
+                    
+                for element in user_input :
+                    selected_players.append(registrable_players[element])
+                    
 
-                        new_tournament_data["registered_players"] = selected_players
-                        new_tournament = self.modify_existing_tournament(new_tournament, new_tournament_data)
-                        self.tournament_repository.update_tournament(new_tournament)
-                        self.tournament_view.show_message(new_tournament)
-                                    
+                new_tournament_data["registered_players"] = selected_players
+                new_tournament = self.modify_existing_tournament(new_tournament, new_tournament_data)
+                self.tournament_repository.update_tournament(new_tournament)
+                self.tournament_view.show_message(new_tournament)
 
-                    case "Rechercher manuellement":
-                        pass
-            elif input_user == "n":
+                                
+            elif user_input == "n":
                 return
             else:
                 self.tournament_view.show_message("Veuillez entrer un choix valide (y/n)")
@@ -373,7 +363,7 @@ class TournamentController():
                                 self.tournament_view.show_message(e)
                                 continue
 
-                    new_start_date = self.format_date_tournament(new_start_date[0], new_start_date[1], new_start_date[2])
+                    new_start_date = MainController.format_date(new_start_date[0], new_start_date[1], new_start_date[2])
                     new_data["start_date"] = new_start_date
                     selected_tournament = self.modify_existing_tournament(selected_tournament, new_data)
                     self.tournament_repository.update_tournament(selected_tournament)
@@ -394,7 +384,7 @@ class TournamentController():
                                 self.tournament_view.show_message(e)
                                 continue
 
-                    new_end_date = self.format_date_tournament(new_end_date[0], new_end_date[1], new_end_date[2])
+                    new_end_date = MainController.format_date(new_end_date[0], new_end_date[1], new_end_date[2])
                     new_data["end_date"] = new_end_date
                     selected_tournament = self.modify_existing_tournament(selected_tournament, new_data)
                     self.tournament_repository.update_tournament(selected_tournament)
@@ -402,25 +392,6 @@ class TournamentController():
 
                 case "Joueurs participants":
                 
-                    add_player_method_options = {   "1" : "Sélectionner les participants à partir de la liste des joueurs",
-                                                    "2" : "Rechercher manuellement"}
-                    while True:
-                        for key, value in add_player_method_options.items():
-                            self.tournament_view.show_message(f"{key} . {value}")
-                        
-                        user_input = self.tournament_view.get_input()
-                        try:
-                            MainController.check_choice(user_input, list(add_player_method_options.keys()))
-                            break
-                        except ValueError as e:
-                            self.tournament_view.show_message(e)
-                            continue
-                    
-                    choice = add_player_method_options[user_input]
-
-                    match choice:
-
-                        case "Sélectionner les participants à partir de la liste des joueurs":
                             registrable_players = {}
                             players_to_register = []
                             new_data = {}
@@ -448,10 +419,6 @@ class TournamentController():
                             self.tournament_repository.update_tournament(selected_tournament)
                             self.tournament_view.show_message("Les joueurs ont bien été ajoutés pour ce tournoi")
                             self.tournament_view.show_message(selected_tournament)
-                                        
-
-                        case "Rechercher manuellement":
-                            pass
                                 
                                 
                 case "Description":
@@ -517,10 +484,6 @@ class TournamentController():
                     return
                 case "n":
                     return
-                
-    def format_date_tournament(self, day, month, year):
-        formatted_date = (day + "/" + month + "/" + year)
-        return formatted_date
 
     def tournament_research(self, input_user: str):
         correspondances = []
@@ -641,7 +604,7 @@ class PlayerController:
                 except ValueError as e:
                     self.player_view.show_message(e)
 
-        formatted_birthdate = self.format_birthdate_player(new_player_data["Jour de naissance"],
+        formatted_birthdate = MainController.format_date(new_player_data["Jour de naissance"],
                                                            new_player_data["Mois de naissance"],
                                                            new_player_data["Année de naissance"])
         del new_player_data["Jour de naissance"]
@@ -649,7 +612,28 @@ class PlayerController:
         del new_player_data["Année de naissance"]
 
         new_player_data["Date de naissance"] = formatted_birthdate
-        
+
+        similar_players = []
+
+        for player in self.player_repository.players:
+            if new_player_data["Identifiant national"] == player.player_id:
+                similar_players.append(player)
+        if similar_players:
+            self.player_view.show_message("Un ou plusieurs joueurs existants ont le même identifiant.")
+            for i in range (0, len(similar_players)):
+                self.player_view.show_message(similar_players[i])
+
+            while True:
+                self.player_view.show_message("Voulez vous tout de même créer le joueur? y/n")
+                choice = self.player_view.get_input()
+            
+                if choice == "y":
+                    break
+                elif choice == "n":
+                    return
+                else:
+                    self.player_view.show_message("Vous devez choisir entre les choix 'y' ou 'n' ")
+                
         new_player = self.create_player(new_player_data)
         self.player_repository.add_player(new_player)
         self.player_view.show_message(f"Le joueur {new_player_data['Prénom']} {new_player_data['Nom']} a été créé avec succès")
@@ -771,7 +755,7 @@ class PlayerController:
                                 self.player_view.show_message(e)
                                 continue
 
-                    new_birth_date = self.format_birthdate_player(new_birth_date[0], new_birth_date[1], new_birth_date[2])
+                    new_birth_date = MainController.format_date(new_birth_date[0], new_birth_date[1], new_birth_date[2])
                     new_data["birth_date"] = new_birth_date
                     selected_player = self.modify_existing_player(selected_player, new_data)
                     self.player_repository.update_player(selected_player)
@@ -875,10 +859,6 @@ class PlayerController:
                     correspondances.append(player)
                     break
         return correspondances
-
-    def format_birthdate_player(self, birth_day, birth_month, birth_year):
-        formatted_birthdate = (birth_day + "/" + birth_month + "/" + birth_year)
-        return formatted_birthdate
 
     def create_player(self, new_player_data):
         try:

@@ -111,21 +111,26 @@ class Round:
 class Match:
 
     def __init__(self,
-                 player1 : Player,
-                 player2: Player,
-                 score_player1 : float = None,
-                 score_player2 : float = None):
+                player1 : Player,
+                player2 : Player,
+                player1_result : str = None,
+                player2_result : str = None,
+                player1_score : float = None,
+                player2_score : float = None,
+                finished : bool = False):
         
-        if (score_player1 is None) != (score_player2 is None):
-            raise ValueError ("Impossible de ne définir qu'un des deux scores")
+
         
         self.player1 = player1
         self.player2 = player2
-        self.score_player1 = score_player1
-        self.score_player2 = score_player2
+        self.player1_result = player1_result
+        self.player2_result = player2_result
+        self.player1_score = player1_score
+        self.player2_score = player2_score
+        self.finished = finished
 
     def __str__(self):
-        if self._score_player1 or self._score_player2 is None:
+        if self.finished is False:
             return f"""
             Match à venir :
             ID : {self._player1.player_id} {self._player1._first_name} {self._player1.last_name}
@@ -135,9 +140,9 @@ class Match:
         else:
             return f"""
             Résultats du match :
-            ID : {self._player1.player_id} {self._player1._first_name} {self._player1.last_name} : {self._score_player1}
+            ID : {self._player1.player_id} {self._player1._first_name} {self._player1.last_name} : {self.player1_result} --> {self._score_player1} point
             vs
-            ID : {self._player1.player_id} {self._player1._first_name} {self._player1.last_name} : {self._score_player2}
+            ID : {self._player1.player_id} {self._player1._first_name} {self._player1.last_name} : {self.player1_result} --> {self._score_player2} point
             """
         
 class Player:

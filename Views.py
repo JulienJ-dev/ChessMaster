@@ -84,8 +84,7 @@ class TournamentView(BaseView) :
     
 
     def display_menu(self, options : dict):
-        title = "MENU DE GESTION DES TOURNOIS"
-        self.show_title(title)
+
         for key,value in options.items():
             self.show_message(f"{key}. {value}")
     
