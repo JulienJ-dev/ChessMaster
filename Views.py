@@ -61,7 +61,9 @@ class PlayerView(BaseView):
         self.show_message(f"\n{player}\n")
         for key, value in options.items():
             self.show_message(f"{key}. {value}")
-        self.show_message(f"Quelle information du joueur {player.first_name} {player.last_name} voulez vous modifier?")
+        self.show_message(
+            f"Quelle information du joueur {player.first_name} {player.last_name} voulez vous modifier?"
+        )
 
     def display_player_research_match(self, matches):
         for i, match in enumerate(matches, start=1):
@@ -82,11 +84,15 @@ class TournamentView(BaseView):
     def display_interface_tournament_data(self, data_needed):
         self.show_message(data_needed)
 
-    def display_submenu_tournament_modification(self, options, tournament: Models.Tournament):
+    def display_submenu_tournament_modification(
+        self, options, tournament: Models.Tournament
+    ):
         self.show_message(f"{tournament}\n")
         for key, value in options.items():
             self.show_message(f"{key}. {value}")
-        self.show_message(f"Quelle information du tournoi '{tournament.name}' voulez vous modifier?")
+        self.show_message(
+            f"Quelle information du tournoi '{tournament.name}' voulez vous modifier?"
+        )
 
     def display_interface_in_progress_tournament(self):
         title = "INTERFACE DE GESTION DES TOURNOIS EN COURS"
@@ -111,8 +117,12 @@ class TournamentView(BaseView):
             self.show_message("\nIl n'y a aucun tournoi enregistré\n")
 
     def display_match_result_input(self, match: Models.Match):
-        self.show_message(f"\n  1. {match.player1.first_name} {match.player1.last_name} gagne")
-        self.show_message(f"  2. {match.player2.first_name} {match.player2.last_name} gagne")
+        self.show_message(
+            f"\n  1. {match.player1.first_name} {match.player1.last_name} gagne"
+        )
+        self.show_message(
+            f"  2. {match.player2.first_name} {match.player2.last_name} gagne"
+        )
         self.show_message("  3. Match nul")
         self.show_message("Résultat de ce match ?")
 
@@ -150,7 +160,9 @@ class ReportView(BaseView):
             self.show_message("Aucun tournoi enregistré.")
             return
         for t in tournaments:
-            self.show_message(f"- {t.name} | {t.location} | {t.start_date} -> {t.end_date}")
+            self.show_message(
+                f"- {t.name} | {t.location} | {t.start_date} -> {t.end_date}"
+            )
 
     def display_tournament_info(self, tournament: Models.Tournament):
         title = f"INFORMATIONS : {tournament.name}"

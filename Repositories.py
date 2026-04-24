@@ -58,6 +58,7 @@ class TournamentRepository:
             self.tournaments = [Models.Tournament.from_dict(item) for item in data]
         self.save_tournaments()
 
+
 class PlayerRepository:
 
     def __init__(self, file_path: str):

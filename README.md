@@ -1,15 +1,37 @@
-# Gestionnaire de tournois d'échecs
+# ChessMaster
 
-Application de gestion de tournois d'échecs en ligne de commande, 
-réalisée dans le cadre du projet 4 d'OpenClassrooms.
+Application Python en ligne de commande pour gérer des tournois d’échecs.
+
+---
 
 ## Installation
 
-Cloner le repo puis installer les dépendances :
+1. Cloner le projet :
+
+```bash
+git clone https://github.com/JulienJ-dev/ChessMaster.git
+cd ChessMaster
+```
+
+2. Créer un environnement virtuel :
+
+```bash
+python -m venv venv
+```
+
+3. Activer l’environnement :
+
+```bash
+venv\Scripts\activate
+```
+
+4. Installer les dépendances :
 
 ```bash
 pip install -r requirements.txt
 ```
+
+---
 
 ## Lancer le programme
 
@@ -17,13 +39,37 @@ pip install -r requirements.txt
 python Main.py
 ```
 
-## Générer le rapport flake8
+---
+
+## Vérification du code avec flake8
+
+Lancer :
 
 ```bash
-flake8 --max-line-length=119 --format=html --htmldir=flake8_rapport Models.py Views.py Controllers.py Repositories.py Main.py
+flake8
 ```
 
-## Notes
+Générer le rapport HTML :
 
-- Les données sont sauvegardées dans le dossier "data/"
-- Le nombre de rounds par défaut est 4
+```bash
+flake8 --format=html --htmldir=flake8_rapport
+```
+
+Ouvrir ensuite :
+
+```text
+flake8_rapport/index.html
+```
+
+---
+
+## Structure
+
+* `Main.py` : point d’entrée
+* `Models.py` : modèles
+* `Views.py` : affichage
+* `Controllers.py` : logique
+* `Repositories.py` : sauvegarde
+* `data/` : données (non versionnées)
+
+---

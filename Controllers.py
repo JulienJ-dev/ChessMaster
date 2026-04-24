@@ -41,7 +41,6 @@ class MainController:
 
     def run(self):
 
-
         self.tournament_repository.load_all(bootload=True)
         self.player_repository.load_all(bootload=True)
 
@@ -165,7 +164,6 @@ class TournamentController:
             case "Retour au menu principal":
                 return "quit"
 
-
     # Gestion d'un tournoi en cours
 
     def handle_in_progress_tournament_interface(self):
@@ -210,7 +208,6 @@ class TournamentController:
                 self.tournament_view.show_message(f"\nTournoi '{tournament.name}' terminé !")
                 return
 
-            # Check if current round exists and is unfinished
             current_round = None
             if tournament.rounds and tournament.current_round > 0:
                 last = tournament.rounds[-1]
@@ -218,7 +215,6 @@ class TournamentController:
                     current_round = last
 
             if current_round is None:
-                # Generate next round
                 options = {"1": "Générer le prochain round", "2": "Retour"}
                 while True:
                     self.tournament_view.display_menu(options)
@@ -271,7 +267,6 @@ class TournamentController:
                     paired = True
                     break
             if not paired:
-                # No unused opponent found — pair with first available
                 p2 = remaining.pop(0)
                 matches.append(Models.Match(p1, p2))
 
@@ -310,10 +305,10 @@ class TournamentController:
         self.tournament_repository.update_tournament(tournament)
         self.tournament_view.show_message(f"\n{rnd.round_number} terminé et sauvegardé.")
 
-
     # Création de tournoi
 
     def handle_tournament_creation_menu(self):
+
         data_needed = [
             "Nom du tournoi", "Ville du tournoi",
             "Jour de démarrage", "Mois de démarrage", "Année de démarrage",
@@ -393,10 +388,10 @@ class TournamentController:
             self.tournament_view.show_message(f"Le tournoi {new_tournament.name} a été créé avec succès")
             return
 
-
     # Modification d'un tournoi
 
     def handle_modify_unfinished_tournament_interface(self):
+
         options = {
             "1": "Nom", "2": "Ville", "3": "Date de démarrage", "4": "Date de fin",
             "5": "Joueurs participants", "6": "Description", "7": "Nombre de rounds", "8": "Retour"
@@ -604,7 +599,7 @@ class TournamentController:
     # Restauration du backup_tournaments
 
     def handle_restoration_database_tournament_interface(self):
-        
+
         possible_choices = ["y", "n"]
         self.tournament_view.show_message(
             "Etes vous sûr de vouloir restaurer votre dernière sauvegarde des tournois ? y/n"
@@ -627,7 +622,6 @@ class TournamentController:
                 case "n":
                     return
 
-                
 
 class PlayerController:
 
@@ -945,3 +939,87 @@ class PlayerController:
                     return
 
 
+class ReportController:
+
+    def __init__(self, report_view: Views.ReportView,
+                 player_repo: Repositories.PlayerRepository,
+                 tournament_repo: Repositories.TournamentRepository):
+        self.report_view = report_view
+        self.player_repository = player_repo
+        self.tournament_repository = tournament_repo
+
+    def run(self):
+        options = {
+            "1": "Liste de tous les joueurs (alphabétique)",
+            "2": "Liste de tous les tournois",
+            "3": "Nom et dates d'un tournoi donné",
+            "4": "Liste des joueurs d'un tournoi (alphabétique)",
+            "5": "Tours et matchs d'un tournoi",
+            "6": "Retour au menu principal"
+        }
+        while True:
+            self.report_view.display_menu(options)
+            user_input = self.report_view.get_input()
+            try:
+                MainController.check_choice(user_input, list(options.keys()))
+            except ValueError as e:
+                self.report_view.show_message(e)
+                continue
+            choice = options[user_input]
+            if self.handle_report_choice(choice) == "quit":
+                return
+
+    def handle_report_choice(self, choice):
+        match choice:
+            case "Liste de tous les joueurs (alphabétique)":
+                sorted_players = sorted(self.player_repository.players, key=lambda p: p.last_name)
+                self.report_view.display_all_players(sorted_players)
+            case "Liste de tous les tournois":
+                self.report_view.display_all_tournaments(self.tournament_repository.tournaments)
+            case "Nom et dates d'un tournoi donné":
+                tournament = self.select_tournament()
+                if tournament:
+                    self.report_view.display_tournament_info(tournament)
+            case "Liste des joueurs d'un tournoi (alphabétique)":
+                tournament = self.select_tournament()
+                if tournament:
+                    sorted_players = sorted(tournament.registered_players, key=lambda p: p.last_name)
+                    self.report_view.display_tournament_players(tournament, sorted_players)
+            case "Tours et matchs d'un tournoi":
+                tournament = self.select_tournament()
+                if tournament:
+                    self.report_view.display_tournament_rounds(tournament)
+            case "Retour au menu principal":
+                return "quit"
+
+    def select_tournament(self):
+        if not self.tournament_repository.tournaments:
+            self.report_view.show_message("Aucun tournoi enregistré.")
+            return None
+
+        researched = self.report_view.display_tournament_research()
+        try:
+            MainController._validate_not_empty(researched)
+        except ValueError as e:
+            self.report_view.show_message(e)
+            return None
+
+        matches = [
+            t for t in self.tournament_repository.tournaments
+            if researched.upper() in t.name.upper() or researched.upper() in t.location.upper()
+        ]
+        if not matches:
+            self.report_view.show_message("Aucune correspondance trouvée.")
+            return None
+        if len(matches) == 1:
+            return matches[0]
+
+        choice = self.report_view.display_tournament_research_matches(matches)
+        try:
+            idx = int(choice)
+            if 1 <= idx <= len(matches):
+                return matches[idx - 1]
+        except ValueError:
+            pass
+        self.report_view.show_message("Choix invalide.")
+        return None
